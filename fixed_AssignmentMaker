@@ -1,0 +1,60 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class Assignment {
+public:
+    Assignment();
+    int getGrade();
+
+private:
+    string name;
+    int grade;
+    string comment;
+};
+
+Assignment::Assignment() {
+    cout << "Name the assignment \n";
+    getline(cin, name);
+    (this->name) = name;
+
+    cout << "Grade the assignment (in percent) \n";
+    cin >> grade;
+    (this->grade) = grade;
+    cin.ignore();
+
+    cout << "Comment on the assignment \n";
+    getline(cin, comment);
+    (this->comment) = comment;
+}
+
+int Assignment::getGrade() {
+    return(grade);
+}
+
+double coursegrade(vector<Assignment> x) {
+    double grade = 0;
+    int i = 0;
+    for (; i < x.size(); i++) {
+        grade += (x[i].getGrade());
+    }
+    grade = (grade / i);
+    return(grade);
+}
+
+int main(void)
+{
+    vector<Assignment> myassignments;
+
+    Assignment a = Assignment();
+
+    myassignments.push_back(a);
+
+    cout << "Current Grade: " << endl;
+
+    double b = coursegrade(myassignments);
+
+    cout << b;
+}
