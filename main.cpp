@@ -47,8 +47,18 @@ double coursegrade(std::vector<Assignment> x) {
 	return grade;
 }
 
+bool SignIn()
+{
+	
+}
+
 int main(void)
 {
+	//first, the user needs to sign in.
+	cout << "enter your username:";
+	string username;
+	cin >> username;
+	bool validLogin = SignIn();
 	std::vector<Assignment> myassignments;
 
 	Assignment a = Assignment();
