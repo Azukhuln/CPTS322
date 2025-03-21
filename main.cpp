@@ -7,6 +7,8 @@ using std::cin;
 using std::endl;
 using std::string;
 
+//using namespace std; is easier than typing std::____ every time
+
 class Assignment
 {
 public:
