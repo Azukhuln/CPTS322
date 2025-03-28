@@ -52,4 +52,3 @@ public:
 private:
 	/*put list of courses here*/
 };
-};
