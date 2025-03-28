@@ -4,11 +4,18 @@ typedef string;
 class course
 {
 public:
-	void addAssign()
+	course(string newName, string newNumber, string newSemester, double newGrade)
+	{
+		name = newName;
+		number = newNumber;
+		semester = newSemester;
+		grade = newGrade;
+	}
+	void addAssign() //Nicholas was working on this
 	{
 
 	}
-	void computeGrade()
+	void computeGrade() //Nicholas was also working on this
 	{
 		
 	}
@@ -17,23 +24,10 @@ private:
 	string number;
 	string semester;
 	double grade;
-	//assignment assignArr[]; whoever is doing the assignment class works on this
+	/*assignment assignArr[]; whoever is doing the assignment class works on this*/
 };
-
-class user
+class mainMenu
 {
-
-};
-
-class student: public user
-{
-	
-};
-
-class teacher : public user
-{
-private:
-	course courseArr[100];
 public:
 	void addCourse()
 	{
@@ -44,6 +38,8 @@ public:
 		cin >> courseNumber;
 		cout << "Enter course semester" << endl;
 		cin >> courseSemester;
+		course newCourse(courseName, courseNumber, courseSemester, 0.0);
+		/*store in csv*/
 	}
 	void removeCourse()
 	{
@@ -52,6 +48,8 @@ public:
 		cin >> courseString;
 		cout << "Are you sure you want to remove this course (Y/N)? " << endl;
 		cin >> confirm;
-		
 	}
+private:
+	/*put list of courses here*/
+};
 };
