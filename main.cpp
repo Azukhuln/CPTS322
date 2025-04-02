@@ -72,7 +72,8 @@ public:
     void editgrade();
     void editcomment();
     void editmax();
-  
+    string getname();
+    string getcomment();
 
 private:
     string name;
@@ -109,17 +110,32 @@ int Assignment::getMax() {
     return(max);
 }
 
+string Assignment::getname() {
+    return(name);
+}
+
+string Assignment::getcomment() {
+    return(comment);
+}
+
 void Assignment::editgrade() {
     cout << "Enter new grade" << endl;
-    cin >> grade;
+    cin >> this->grade;
 }
 void Assignment::editcomment() {
-    cout << "Enter new comment" << endl;
-    cin >> comment;
+    getline(cin, this->comment);
+    cin >> this->comment;
 }
 void Assignment::editmax() {
     cout << "Enter new maximum grade" << endl;
-    cin >> max;
+    cin >> this->max;
+}
+
+void printassignments(vector<Assignment> x) {
+    int i = 0;
+    for (; i < x.size(); i++) {
+        cout << x[i].getname() << ": ,Points Given: " << x[i].getGrade() << " ,Max points: " << x[i].getMax() << " ,Comment: " << x[i].getcomment() << endl;
+    }
 }
 
 double coursegrade(vector<Assignment> x) {
@@ -133,6 +149,7 @@ double coursegrade(vector<Assignment> x) {
     grade = ((grade / max) * 100);
     return(grade);
 }
+
 
 int main(void)
 {
@@ -148,11 +165,15 @@ int main(void)
 
     cout << b << "%" << endl;
 
-    a.editgrade();
+    myassignments[0].editgrade();
 
-    // double z = coursegrade(myassignments);
+    double z = coursegrade(myassignments);
 
-    //  cout << z << "%" << endl;
+    cout << z << "%" << endl;
+
+    printassignments(myassignments);
 
     //NEED PERSISTANT DATA (Store in a file)
 }
+
+//UPDATE THE MENU SO THAT THE COURSES CAN BE PRINTED.
