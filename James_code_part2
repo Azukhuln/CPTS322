@@ -1,0 +1,279 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <map>
+
+using namespace std;
+
+class Assignment {
+public:
+    Assignment() = default;
+
+    Assignment(string name, int max, int grade, string comment)
+        : name(name), max(max), grade(grade), comment(comment) {}
+
+    int getGrade() const { 
+        return(grade); 
+    }
+    int getMax() const { 
+        return(max); 
+    }
+    string toCSV() const { return name + "," + to_string(max) + "," + to_string(grade) + "," + comment; }
+
+    void editgrade() {
+        cout << "Enter new grade" << endl;
+        cin >> grade;
+    }
+
+    void editcomment() {
+        cout << "Enter new comment" << endl;
+        cin.ignore();
+        getline(cin, comment);
+    }
+
+    void editmax() {
+        cout << "Enter new maximum grade" << endl;
+        cin >> max;
+    }
+
+private:
+    string name;
+    int max;
+    int grade;
+    string comment;
+};
+
+double coursegrade(const vector<Assignment>& x) {
+    double grade = 0;
+    double max = 0;
+    for (const auto& a : x) {
+        grade += a.getGrade();
+        max += a.getMax();
+    }
+    if (max == 0) {
+        return(0);
+    }
+    return((grade / max) * 100);
+}
+
+class Course {
+public:
+    Course() = default;
+
+    Course(string name, string number, string semester, double year)
+        : name(name), number(number), semester(semester), year(year), grade(0.0) {}
+
+    void addAssign() {
+        string assignmentName, comment;
+        int maxPoints, points;
+        cin.ignore();
+
+        cout << "Name the assignment: ";
+        getline(cin, assignmentName);
+        cout << "Give the maximum point value: ";
+        cin >> maxPoints;
+        cout << "Give the grade (in points): ";
+        cin >> points;
+        cin.ignore();
+        cout << "Comment on the assignment: ";
+        getline(cin, comment);
+
+        assignments.emplace_back(assignmentName, maxPoints, points, comment);
+        computeGrade();
+    }
+
+    void addAssignmentFromCSV(const Assignment& a) {
+        assignments.push_back(a);
+        computeGrade();
+    }
+
+    void computeGrade() {
+        grade = coursegrade(assignments);
+    }
+
+    void viewGrade() const {
+        cout << "Course: " << name << " " << number << " - Semester: " << semester << " " << year << endl;
+        cout << "Grade: " << grade << "%" << endl;
+    }
+
+    void appendAssignmentsToCSV(ofstream& file) const {
+        file << "C," << name << "," << number << "," << semester << "," << year << ",,,\n";
+        for (const auto& assignment : assignments) {
+            file << "A," << name << "," << number << "," << semester << "," << year << ","
+                << assignment.toCSV() << "\n";
+        }
+    }
+
+    string getKey() const {
+        return(name + number + semester + to_string(year));
+    }
+
+private:
+    string name;
+    string number;
+    string semester;
+    double year;
+    double grade;
+    vector<Assignment> assignments;
+};
+
+class MainMenu {
+public:
+    void addCourse() {
+        string courseName, courseNumber, courseSemester;
+        double courseYear;
+        cout << "Enter name of course: ";
+        cin >> courseName;
+        cout << "Enter course number: ";
+        cin >> courseNumber;
+        cout << "Enter course semester: ";
+        cin >> courseSemester;
+        cout << "Enter course year: ";
+        cin >> courseYear;
+
+        courses.emplace_back(courseName, courseNumber, courseSemester, courseYear);
+    }
+
+    void addAssignmentToCourse() {
+        if (courses.empty()) {
+            cout << "No courses available. Please create a course first." << endl;
+            return;
+        }
+
+        cout << "Select the course to add an assignment to:" << endl;
+        for (size_t i = 0; i < courses.size(); ++i) {
+            cout << i + 1 << ". ";
+            courses[i].viewGrade();
+        }
+
+        int choice;
+        cout << "Enter the course number: ";
+        cin >> choice;
+
+        if (choice < 1 || choice > courses.size()) {
+            cout << "Invalid course selection." << endl;
+            return;
+        }
+
+        courses[choice - 1].addAssign();
+        cout << "Assignment added and grade updated." << endl;
+    }
+
+    void viewCourses() const {
+        if (courses.empty()) {
+            cout << "No courses available." << endl;
+            return;
+        }
+        for (const auto& c : courses) {
+            c.viewGrade();
+        }
+    }
+
+    void saveAllCoursesToFiles() const {
+        ofstream file("CPTS322_storage.csv");
+        if (!file.is_open()) {
+            cerr << "Could not open CPTS322_storage.csv for writing!" << endl;
+            return;
+        }
+
+        file << "Type,Course Name,Course Number,Semester,Year,Assignment Name,Max,Grade,Comment\n";
+        for (const auto& course : courses) {
+            course.appendAssignmentsToCSV(file);
+        }
+        file.close();
+    }
+
+    void loadCoursesFromCSV() {
+        ifstream file("CPTS322_storage.csv");
+        if (!file.is_open()) {
+            cerr << "Could not open CPTS322_storage.csv for reading!" << endl;
+            return;
+        }
+
+        string line;
+        getline(file, line);
+
+        map<string, Course> courseMap;
+
+        while (getline(file, line)) {
+            vector<string> tokens;
+            stringstream ss(line);
+            string item;
+            while (getline(ss, item, ',')) {
+                tokens.push_back(item);
+            }
+
+            if (tokens.empty()) continue;
+            string type = tokens[0];
+            string key = tokens[1] + tokens[2] + tokens[3] + tokens[4];
+
+            if (type == "C") {
+                courseMap[key] = Course(tokens[1], tokens[2], tokens[3], stod(tokens[4]));
+            }
+            else if (type == "A" && tokens.size() >= 9) {
+                if (courseMap.find(key) != courseMap.end()) {
+                    Assignment a(tokens[5], stoi(tokens[6]), stoi(tokens[7]), tokens[8]);
+                    courseMap[key].addAssignmentFromCSV(a);
+                }
+            }
+        }
+
+        for (map<string, Course>::iterator it = courseMap.begin(); it != courseMap.end(); ++it) {
+            courses.push_back(it->second);
+        }
+
+        file.close();
+    }
+
+private:
+    vector<Course> courses;
+};
+
+int main() {
+    MainMenu menu;
+    menu.loadCoursesFromCSV();
+
+    while (true) {
+        int actionChoice = 0;
+        int targetChoice = 0;
+
+        cout << "\nCPTS322\nClass Grade Calculator and Assignment Commenting Program\n" << endl;
+        cout << "Select an action:\n1. Create\n2. View\n3. Delete\n4. Exit" << endl;
+        cin >> actionChoice;
+
+        if (actionChoice == 4) {
+            cout << "Saving data and exiting program." << endl;
+            menu.saveAllCoursesToFiles();
+            break;
+        }
+
+        cout << "Apply action to:\n1. Course\n2. Assignment" << endl;
+        cin >> targetChoice;
+
+        if (actionChoice == 1) {
+            if (targetChoice == 1) {
+                menu.addCourse();
+            }
+            else {
+                menu.addAssignmentToCourse();
+            }
+        }
+        else if (actionChoice == 2) {
+            if (targetChoice == 1) {
+                menu.viewCourses();
+            }
+            else {
+                menu.viewCourses();
+            }
+        }
+        else if (actionChoice == 3) {
+            cout << "Course/assignment deletion not implemented yet." << endl;
+        }
+        else {
+            cout << "Invalid action." << endl;
+        }
+    }
+    return(0);
+}
