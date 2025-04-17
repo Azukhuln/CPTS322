@@ -6,6 +6,8 @@
 //using std::cin;
 //using std::endl;
 //using std::string;
+
+using namespace std;
 //
 //class Assignment
 //{
@@ -150,9 +152,16 @@ double coursegrade(vector<Assignment> x) {
     return(grade);
 }
 
+bool LoginAttempt()
+{
+    string s;
+    cin << s;
+    
+}
 
 int main(void)
 {
+    //first log in
     vector<Assignment> myassignments;
 
     Assignment a = Assignment();
