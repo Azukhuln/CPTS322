@@ -1,0 +1,4 @@
+admin
+password
+student
+education
